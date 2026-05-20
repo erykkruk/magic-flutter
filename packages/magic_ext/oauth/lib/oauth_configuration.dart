@@ -1,15 +1,16 @@
 /// OAuth Configuration
 class OAuthConfiguration {
-  OAuthProvider provider;
-  String redirectURI;
-  List<String>? scope;
-  String? loginHint;
+  OAuthConfiguration({
+    required this.provider,
+    required this.redirectURI,
+    this.scope,
+    this.loginHint,
+  });
 
-  OAuthConfiguration(
-      {required this.provider,
-      required this.redirectURI,
-      this.scope,
-      this.loginHint});
+  final OAuthProvider provider;
+  final String redirectURI;
+  final List<String>? scope;
+  final String? loginHint;
 }
 
 /// OAuth Supported Provider
@@ -24,7 +25,7 @@ enum OAuthProvider {
   TWITTER,
   DISCORD,
   TWITCH,
-  MICROSOFT
+  MICROSOFT,
 }
 
 extension ParseOAuthProviderToString on OAuthProvider {

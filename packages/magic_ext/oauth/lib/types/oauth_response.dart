@@ -7,10 +7,10 @@ part 'oauth_response.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class MagicPartialResult {
+  MagicPartialResult(this.idToken, this.userInfo);
+
   String? idToken;
   UserInfo? userInfo;
-
-  MagicPartialResult(this.idToken, this.userInfo);
 
   factory MagicPartialResult.fromJson(Map<String, dynamic> json) =>
       _$MagicPartialResultFromJson(json);
@@ -20,14 +20,19 @@ class MagicPartialResult {
 
 @JsonSerializable(explicitToJson: true)
 class OAuthPartialResult {
+  OAuthPartialResult(
+    this.provider,
+    this.scope,
+    this.accessToken,
+    this.userHandle,
+    this.userInfo,
+  );
+
   String? provider;
   List<String>? scope;
   String? accessToken;
   String? userHandle;
   OpenIDConnectProfile? userInfo;
-
-  OAuthPartialResult(this.provider, this.scope, this.accessToken,
-      this.userHandle, this.userInfo);
 
   factory OAuthPartialResult.fromJson(Map<String, dynamic> json) =>
       _$OAuthPartialResultFromJson(json);
@@ -37,10 +42,10 @@ class OAuthPartialResult {
 
 @JsonSerializable(explicitToJson: true)
 class OAuthResponse {
+  OAuthResponse(this.oauth, this.magic);
+
   OAuthPartialResult? oauth;
   MagicPartialResult? magic;
-
-  OAuthResponse(this.oauth, this.magic);
 
   factory OAuthResponse.fromJson(Map<String, dynamic> json) =>
       _$OAuthResponseFromJson(json);

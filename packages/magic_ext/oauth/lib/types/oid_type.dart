@@ -4,6 +4,28 @@ part 'oid_type.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class OpenIDConnectProfile {
+  OpenIDConnectProfile(
+    this.name,
+    this.familyName,
+    this.nickname,
+    this.givenName,
+    this.middleName,
+    this.preferredUsername,
+    this.profile,
+    this.picture,
+    this.website,
+    this.gender,
+    this.birthdate,
+    this.zoneinfo,
+    this.locale,
+    this.updatedAt,
+    this.email,
+    this.emailVerified,
+    this.phoneNumber,
+    this.phoneNumberVerified,
+    this.address,
+  );
+
   String? name;
   String? familyName;
   String? givenName;
@@ -30,27 +52,6 @@ class OpenIDConnectProfile {
   // OpenIDConnectAddress
   OIDAddress? address;
 
-  OpenIDConnectProfile(
-      this.name,
-      this.familyName,
-      this.nickname,
-      this.givenName,
-      this.middleName,
-      this.preferredUsername,
-      this.profile,
-      this.picture,
-      this.website,
-      this.gender,
-      this.birthdate,
-      this.zoneinfo,
-      this.locale,
-      this.updatedAt,
-      this.email,
-      this.emailVerified,
-      this.phoneNumber,
-      this.phoneNumberVerified,
-      this.address);
-
   factory OpenIDConnectProfile.fromJson(Map<String, dynamic> json) =>
       _$OpenIDConnectProfileFromJson(json);
 
@@ -60,15 +61,21 @@ class OpenIDConnectProfile {
 // OIDAddress
 @JsonSerializable(explicitToJson: true)
 class OIDAddress {
+  OIDAddress(
+    this.formatted,
+    this.streetAddress,
+    this.locality,
+    this.region,
+    this.postalCode,
+    this.country,
+  );
+
   String? formatted;
   String? streetAddress;
   String? locality;
   String? region;
   String? postalCode;
   String? country;
-
-  OIDAddress(this.formatted, this.streetAddress, this.locality, this.region,
-      this.postalCode, this.country);
 
   factory OIDAddress.fromJson(Map<String, dynamic> json) =>
       _$OIDAddressFromJson(json);

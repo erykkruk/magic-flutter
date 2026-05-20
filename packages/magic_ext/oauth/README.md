@@ -1,3 +1,18 @@
+# magic_ext_oauth (fork)
+
+> **Fork notice:** this is a community fork of [magiclabs/magic-flutter](https://github.com/magiclabs/magic-flutter) `magic_ext_oauth 0.4.7`. The upstream is archived and depends on the abandoned `flutter_web_auth ^0.5.0` package, which is broken on iOS 13+ scene-based apps (OAuth callback never resolves). This fork swaps it for `flutter_web_auth_2 ^4.0.0` and ships a few small fixes (see CHANGELOG).
+>
+> Consume via git:
+> ```yaml
+> magic_ext_oauth:
+>   git:
+>     url: https://github.com/erykkruk/magic-flutter.git
+>     ref: flutter_web_auth_2
+>     path: packages/magic_ext/oauth
+> ```
+
+---
+
 Magic empowers developers to protect their users via an innovative, passwordless authentication flow without the UX compromises that burden traditional OAuth implementations.
 
 ## Features
