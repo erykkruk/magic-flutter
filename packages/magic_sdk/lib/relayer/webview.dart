@@ -135,6 +135,9 @@ class WebViewRelayerState extends State<WebViewRelayer> {
     }
 
     widget._webViewCtrl.setJavaScriptMode(JavaScriptMode.unrestricted);
+    // Transparent so the always-rendered relayer does not paint an opaque
+    // white surface over the host app while the overlay is idle.
+    widget._webViewCtrl.setBackgroundColor(const Color(0x00000000));
     widget._webViewCtrl.removeJavaScriptChannel("magicFlutter");
     widget._webViewCtrl.addJavaScriptChannel('magicFlutter',
         onMessageReceived: (JavaScriptMessage message) {
@@ -172,9 +175,18 @@ class WebViewRelayerState extends State<WebViewRelayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: widget._isOverlayVisible,
-      maintainState: true,
+    // Keep the relayer WebView laid out and painted at all times. With the
+    // original Visibility(visible: _isOverlayVisible), the WKWebView is taken
+    // Offstage (zero-size) while the overlay is idle; iOS then suspends its web
+    // content process, so the box.magic.link page never finishes loading and
+    // never emits MAGIC_OVERLAY_READY. Any RPC that runs before the overlay is
+    // shown — most notably OAuth result parsing (loginWithOAuth) and the first
+    // email-OTP request — then enqueues a message that is never dispatched, and
+    // the call hangs forever on iOS. Render the WebView at all times
+    // (transparent background, set in loadWebView) and only ignore pointer
+    // input while the overlay is hidden.
+    return IgnorePointer(
+      ignoring: !widget._isOverlayVisible,
       child: WebViewWidget(controller: widget._webViewCtrl),
     );
   }
