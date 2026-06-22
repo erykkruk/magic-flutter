@@ -135,6 +135,9 @@ class WebViewRelayerState extends State<WebViewRelayer> {
     }
 
     widget._webViewCtrl.setJavaScriptMode(JavaScriptMode.unrestricted);
+    // Transparent so the always-rendered relayer does not paint an opaque
+    // white surface over the host app while the overlay is idle.
+    widget._webViewCtrl.setBackgroundColor(const Color(0x00000000));
     widget._webViewCtrl.removeJavaScriptChannel("magicFlutter");
     widget._webViewCtrl.addJavaScriptChannel('magicFlutter',
         onMessageReceived: (JavaScriptMessage message) {
@@ -172,10 +175,28 @@ class WebViewRelayerState extends State<WebViewRelayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: widget._isOverlayVisible,
-      maintainState: true,
-      child: WebViewWidget(controller: widget._webViewCtrl),
+    final webView = WebViewWidget(controller: widget._webViewCtrl);
+
+    // When the Magic overlay is visible (e.g. the email-OTP modal) render it
+    // full size so the user can interact with it.
+    if (widget._isOverlayVisible) {
+      return webView;
+    }
+
+    // When the overlay is hidden, the WKWebView must stay attached and PAINTED:
+    // the original Visibility(visible:false) took it Offstage (zero-size, not
+    // painted), and iOS then suspends its web content process so box.magic.link
+    // never emits MAGIC_OVERLAY_READY and relayer RPCs (loginWithOAuth result
+    // parsing, the first email-OTP) hang forever.
+    //
+    // But a full-size WebView on top of the app would block touches to the
+    // content below it — IgnorePointer does NOT pass touches through a native
+    // platform view to another platform view underneath (e.g. an in-app
+    // WebView), so those screens become un-tappable. Shrink it to 1x1 instead:
+    // still attached/painted (stays alive) yet effectively invisible and
+    // non-blocking. It expands to full size only when the overlay is shown.
+    return IgnorePointer(
+      child: SizedBox(width: 1, height: 1, child: webView),
     );
   }
 }
