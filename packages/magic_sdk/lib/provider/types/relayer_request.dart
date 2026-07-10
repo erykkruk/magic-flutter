@@ -1,4 +1,4 @@
-import 'package:magic_sdk/provider/types/rpc_request.dart';
+import 'package:magic_flutter_v2/provider/types/rpc_request.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'relayer_request.g.dart';
@@ -7,10 +7,11 @@ part 'relayer_request.g.dart';
 class RelayerRequest<T> {
   String msgType;
   MagicRPCRequest<T> payload;
-  String? rt; 
+  String? rt;
   String? jwt;
 
-  RelayerRequest({required this.msgType, required this.payload, this.rt, this.jwt});
+  RelayerRequest(
+      {required this.msgType, required this.payload, this.rt, this.jwt});
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

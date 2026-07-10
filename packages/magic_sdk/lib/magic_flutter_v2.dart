@@ -7,7 +7,7 @@ import 'relayer/locale.dart';
 import 'relayer/url_builder.dart';
 import 'relayer/webview.dart';
 
-export 'package:magic_sdk/magic_sdk.dart';
+export 'package:magic_flutter_v2/magic_flutter_v2.dart';
 export 'modules/web3/magic_credential.dart';
 
 /// The entry point for accessing Magic SDK.

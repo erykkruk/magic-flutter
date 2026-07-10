@@ -1,4 +1,22 @@
+# magic_flutter_v2
+
+A maintained fork of [`magic_sdk`](https://pub.dev/packages/magic_sdk) (from
+[magiclabs/magic-flutter](https://github.com/magiclabs/magic-flutter)) based on `6.0.1`.
+
 Magic empowers developers to protect their users via an innovative, passwordless authentication flow without the UX compromises that burden traditional OAuth implementations.
+
+## Why this fork
+
+Upstream `magic_sdk` renders the relayer WebView with `Visibility(visible: false)` while the
+overlay is idle, which takes the `WKWebView` offstage. On iOS the system then suspends its web
+content process, so `box.magic.link` never emits `MAGIC_OVERLAY_READY` and queued relayer RPCs
+(the `loginWithOAuth` result parsing, the first `loginWithEmailOTP`) hang forever.
+
+This fork keeps the relayer WebView attached and painted at all times so it stays alive, but shrinks
+it to a `1x1`, pointer-ignoring box while the overlay is hidden — so it neither covers the host app
+nor blocks touches to content below it. It expands to full size only while the overlay is visible.
+
+The public API is unchanged from upstream `6.0.1`; only the package name differs.
 
 ## ⚠️ Removal of `loginWithMagicLink()`  ⚠️
 As of `v4.0.0`, passcodes (ie. `loginWithSMS()`, `loginWithEmailOTP()`) are replacing Magic Links (ie. `loginWithMagicLink()`) for all of our Mobile SDKs⁠. [Learn more](https://magic.link/docs/auth/login-methods/email/email-link-update-march-2023)
@@ -9,19 +27,19 @@ This is your entry-point to secure, passwordless authentication for your iOS or 
 
 ## Installation
 
-Add `magic_sdk` to your `pubspec.yaml`:
+Add `magic_flutter_v2` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
-  magic_sdk: ^4.0.0
+  magic_flutter_v2: ^6.0.1
 ```
 
 Run the following command to install dependencies
 
 ```text
-$ dart pub get
+$ flutter pub get
 ```
 
 ## Create an SDK Instance
@@ -29,6 +47,7 @@ $ dart pub get
 In `main.dart`, instantiate Magic with your publishable key
 
 ```dart
+import 'package:magic_flutter_v2/magic_flutter_v2.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,15 +67,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    @override
-    Widget build(BuildContext context) {
-      return MaterialApp(
-          title: 'Magic Demo',
-          home: Stack(children: [
-            const LoginPage(),
-            Magic.instance.relayer
-          ]));
-    }
+    return MaterialApp(
+        title: 'Magic Demo',
+        home: Stack(children: [
+          const LoginPage(),
+          Magic.instance.relayer
+        ]));
   }
 }
 ```
@@ -69,4 +85,10 @@ var token = await magic.auth.loginWithEmailOTP(email: textController.text);
 
 ## Additional information
 
-For more detail, please check the [Magic Link Flutter doc](https://magic.link/docs/login-methods/email/integration/flutter)
+For more detail, please check the [Magic Link Flutter doc](https://magic.link/docs/login-methods/email/integration/flutter).
+
+## License & credits
+
+This package is a fork of [magiclabs/magic-flutter](https://github.com/magiclabs/magic-flutter),
+distributed under the Apache License 2.0. The original copyright remains with Magic Labs, Inc.
+See [LICENSE](LICENSE). This fork adds the iOS relayer WebView fix described above.

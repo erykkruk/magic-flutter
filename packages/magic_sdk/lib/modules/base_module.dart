@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:magic_sdk/utils/string.dart';
+import 'package:magic_flutter_v2/utils/string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../provider/rpc_provider.dart';

@@ -1,3 +1,16 @@
+## 6.0.1
+First release of `magic_flutter_v2`, a maintained fork of `magic_sdk` 6.0.1
+(magiclabs/magic-flutter).
+
+* Fix: keep the relayer WebView alive on iOS without blocking the host app.
+  Upstream renders the relayer with `Visibility(visible: false)` while idle,
+  which iOS treats as offstage and suspends its web content process, so
+  `box.magic.link` never emits `MAGIC_OVERLAY_READY` and `loginWithOAuth` /
+  the first `loginWithEmailOTP` hang forever. The WebView now stays attached
+  and painted, shrunk to a 1x1 pointer-ignoring box while hidden, and expands
+  to full size only while the overlay is visible.
+* Public API is unchanged from upstream 6.0.1.
+
 ## 4.1.0
 Prevents "Device requesting login is not supported" for Flutter SDKs 
 

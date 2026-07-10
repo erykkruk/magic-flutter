@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:magic_sdk/magic_sdk.dart';
+import 'package:magic_flutter_v2/magic_flutter_v2.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
