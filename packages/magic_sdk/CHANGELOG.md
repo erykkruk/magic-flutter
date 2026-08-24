@@ -1,3 +1,27 @@
+## 6.1.0
+
+* Add `MagicRelayerDiagnostics`, an observability hook for the relayer
+  WebView. The relayer is where logins actually happen, and when it fails it
+  fails quietly: a login call queues a message and waits for a reply that
+  never comes. Register `MagicRelayerDiagnostics.onError` to see those
+  failures instead of losing them to the console.
+* Report `MagicRelayerErrorKind.urlUnavailable` when the relayer URL cannot
+  be built or resolves to null. This is the state that looks like "OAuth
+  hangs": the WebView never loads, so every login queues forever. It
+  previously only reached `print`.
+* Report `MagicRelayerErrorKind.responseUndecodable` for unparseable relayer
+  messages, with the original error and stack trace attached.
+* Fix a latent crash in `handleResponse`: a response whose id had no pending
+  request dereferenced a null completer. It is now reported as
+  `MagicRelayerErrorKind.orphanedResponse` and ignored.
+* Remove the `print` call from the relayer; all reporting goes through the
+  diagnostics hook, which falls back to `debugPrint` when no handler is set.
+* Add the first tests to the package (10, covering the diagnostics
+  contract).
+
+Behaviour of the login flow itself is unchanged: this release only adds
+reporting and removes a null dereference.
+
 ## 6.0.1
 First release of `magic_flutter_v2`, a maintained fork of `magic_sdk` 6.0.1
 (magiclabs/magic-flutter).

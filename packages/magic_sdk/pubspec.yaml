@@ -3,7 +3,7 @@ description: >-
   Maintained fork of magic_sdk (magiclabs/magic-flutter) with an iOS relayer
   WebView fix so OAuth and email-OTP logins no longer hang. Passwordless auth
   for Flutter.
-version: 6.0.1
+version: 6.1.0
 homepage: https://github.com/erykkruk/magic-flutter
 repository: https://github.com/erykkruk/magic-flutter
 issue_tracker: https://github.com/erykkruk/magic-flutter/issues
