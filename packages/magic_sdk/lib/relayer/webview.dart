@@ -10,6 +10,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import '../../provider/types/relayer_request.dart';
 import '../../provider/types/relayer_response.dart';
 import '../../provider/types/rpc_response.dart';
+import '../../relayer/relayer_diagnostics.dart';
 import '../../relayer/url_builder.dart';
 
 part '../provider/types/inbound_message.dart';
@@ -72,18 +73,37 @@ class WebViewRelayer extends StatefulWidget {
       // get callbacks in the handlers map
       var completer = _messageHandlers[id];
 
+      if (completer == null) {
+        // A reply for a request nobody awaits any more: a late response
+        // after a timeout, or a disposed relayer. Report it instead of
+        // dereferencing null and turning it into a crash.
+        MagicRelayerDiagnostics.report(
+          MagicRelayerError(
+            kind: MagicRelayerErrorKind.orphanedResponse,
+            message: 'No pending request for relayer response id $id',
+          ),
+        );
+        return;
+      }
+
       // Surface the Raw JavaScriptMessage back to the function call so it can converted back to Result type
       // Only decode when result is not null, so the result is not null
       if (result != null) {
-        completer!.complete(message);
+        completer.complete(message);
       }
 
       if (rpcResponse.error != null) {
-        completer!.completeError(rpcResponse.error!.toJson());
+        completer.completeError(rpcResponse.error!.toJson());
       }
-    } catch (err) {
-      //Todo Add internal error collector
-      debugPrint("parse Error ${err.toString()}");
+    } catch (err, stackTrace) {
+      MagicRelayerDiagnostics.report(
+        MagicRelayerError(
+          kind: MagicRelayerErrorKind.responseUndecodable,
+          message: 'Could not parse a relayer response',
+          error: err,
+          stackTrace: stackTrace,
+        ),
+      );
     }
   }
 
@@ -108,26 +128,56 @@ class WebViewRelayerState extends State<WebViewRelayer> {
       if (url != null) {
         loadWebView();
       } else {
+        _reportUrlUnavailable(
+          'Relayer URL resolved to null; no login can be sent.',
+        );
         setState(() {
           // Show an error message or handle the absence of URL
         });
       }
-    } catch (error) {
-      print('Error occurred: $error');
+    } catch (error, stackTrace) {
+      _reportUrlUnavailable(
+        'Relayer URL could not be built; no login can be sent.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       setState(() {
         // Show an error message or handle the error
       });
     }
   }
 
+  /// Reports the failure that leaves every login queued forever.
+  ///
+  /// Without the relayer URL the WebView never loads, so `enqueue` keeps
+  /// filling the queue and no completer is ever resolved. That is the state
+  /// a host app most needs to know about, and it used to only reach the
+  /// console.
+  void _reportUrlUnavailable(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    MagicRelayerDiagnostics.report(
+      MagicRelayerError(
+        kind: MagicRelayerErrorKind.urlUnavailable,
+        message: message,
+        error: error,
+        stackTrace: stackTrace,
+      ),
+    );
+  }
+
   void loadWebView() {
     // enable inspector
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      final double? iosVersion = double.tryParse(Platform.operatingSystemVersion.split(' ')[1]);
+      final double? iosVersion =
+          double.tryParse(Platform.operatingSystemVersion.split(' ')[1]);
 
-      if (iosVersion != null && iosVersion >= 16.0) {  // setInspectable isn't avaliable in earlier iOS versions
+      if (iosVersion != null && iosVersion >= 16.0) {
+        // setInspectable isn't avaliable in earlier iOS versions
         final WebKitWebViewController webKitController =
-        widget._webViewCtrl.platform as WebKitWebViewController;
+            widget._webViewCtrl.platform as WebKitWebViewController;
         webKitController.setInspectable(true);
       }
     } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {

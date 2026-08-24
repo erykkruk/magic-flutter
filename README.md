@@ -37,6 +37,36 @@ Make sure you have the third-party blockchain dependencies installed
 
 You may remove these dependencies if you don't need to access these chains
 
+## Relayer diagnostics
+
+The relayer WebView is where logins actually happen. When it fails, it fails
+quietly: a login call queues a message and waits for a reply that never
+arrives, which surfaces to users as a spinner that never resolves.
+
+Register a handler once at startup to see those failures:
+
+```dart
+MagicRelayerDiagnostics.onError = (error) {
+  crashReporter.report(error.error ?? error.message, error.stackTrace);
+
+  if (error.kind == MagicRelayerErrorKind.urlUnavailable) {
+    // The relayer never loaded, so no login can succeed in this state.
+    // Show a retry rather than a spinner.
+    showLoginUnavailable();
+  }
+};
+```
+
+| Kind | Meaning |
+|---|---|
+| `urlUnavailable` | The relayer URL could not be built, so the WebView never loaded and every login queues forever |
+| `responseUndecodable` | A message from the relayer could not be parsed |
+| `orphanedResponse` | A reply arrived for a request nobody awaits any more (a late response after a timeout, or a disposed relayer) |
+
+The handler must not throw and should return quickly; it is called on the
+thread that hit the error. Leaving it unset keeps the previous behaviour:
+failures go to the debug console only.
+
 ## Development Caveats
 
 Files ending with `*.g.dart` are auto generated type files that are used to serialize / deserialize a class.
